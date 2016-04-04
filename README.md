@@ -1,9 +1,9 @@
 # JavaPythonProjects
 
 a repo for java or python projects
-I thougth I'd make a small repo with some mini project.
+I thougth I'd make a small repo with some mini projects.
 
-ideally, it will contain a few examples in java and python. I also thought about making examples in a third language but I have not decided yet. 
+ideally, it will contain a few examples in Java and Python. I also thought about making examples in a third language but I have not decided yet. 
 
 the examples I want to include is:
 
