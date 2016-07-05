@@ -49,22 +49,22 @@ public static void main(String[] args){
 	
 	for(int i=0; i<foodsupply.length; i++){
 		for(int j=0; j<foodsupply.length; j++){
-			foodsupply[i][j]=250-(i+j)/4;
+			foodsupply[i][j]=400-(i+j)/4;
 			foodsupply[i][j]=Math.max(25,foodsupply[i][j]);
 		}
 	}
 	
 		for(int j=0; j<foodsupply.length; j++){
 			for(int i=100; i<150; i++)
-				foodsupply[i][j]=50;
+				foodsupply[i][j]=225;
 				
 			for(int i=300; i<350; i++)
-				foodsupply[i][j]=50;	
+				foodsupply[i][j]=225;	
 		}
 		
 		for(int i=0; i<foodsupply.length; i++)
 			for(int j=300; j<350; j++){
-				foodsupply[i][j]=150;
+				foodsupply[i][j]=225;
 		}
 		
 	for(int i=0; i<foodsupply.length; i++){
@@ -82,7 +82,7 @@ public static void main(String[] args){
 			angle=Math.abs(angle-Math.PI/2);
 			
 			if(angle*75>Math.hypot(i-foodsupply.length/2,j-foodsupply[0].length/2))
-				foodsupply[(int)i][(int)j]=200;
+				foodsupply[(int)i][(int)j]=360;
 			
 		}
 	}
@@ -187,8 +187,8 @@ public static void main(String[] args){
 				{
 					Color c=animales[i][j].returnColour();
 					energyconsumption=c.getRed();
-					energyconsumption=c.getGreen();
-					energyconsumption=c.getBlue();
+					energyconsumption+=c.getGreen()/4;
+					energyconsumption+=c.getBlue();
 				}
 				animales[i][j].setDeposit(animales[i][j].returnDeposit()+gainedfood-energyconsumption);
 				
