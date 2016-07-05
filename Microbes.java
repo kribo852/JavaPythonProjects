@@ -11,12 +11,16 @@ import java.awt.event.*;
 import java.io.IOException;
 import java.io.File;
 
-class main{
+class Microbes{
 	
 public static void main(String[] args){
 	
 	
 	SaveFrame jframe=new SaveFrame();
+	
+	jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	jframe.setVisible(true);
+	jframe.setSize(1000 , 500);
 	
 	Critter[][] animales=new Critter[jframe.returnBuffer().getWidth()][jframe.returnBuffer().getHeight()];//red,green,blue,foodamount 
 	HashSet<int[]> active=new HashSet<int[]>();
@@ -35,11 +39,9 @@ public static void main(String[] args){
 	
 
 	int[][] foodsupply=new int[animales.length][animales[0].length];
+	double waveangle=0;
 	
 	
-	jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	jframe.setVisible(true);
-	jframe.setSize(1000 , 500);
 	
 	Random RND=new Random();
 	
@@ -56,10 +58,10 @@ public static void main(String[] args){
 	
 		for(int j=0; j<foodsupply.length; j++){
 			for(int i=100; i<150; i++)
-				foodsupply[i][j]=225;
+				foodsupply[i][j]=200;
 				
 			for(int i=300; i<350; i++)
-				foodsupply[i][j]=225;	
+				foodsupply[i][j]=200;	
 		}
 		
 		for(int i=0; i<foodsupply.length; i++)
@@ -121,12 +123,12 @@ public static void main(String[] args){
 				}
 			}
 		}
-		{
+		if(active.isEmpty()){
 			int x=RND.nextInt(animales.length);
 			int y=RND.nextInt(animales[0].length);
 			animales[x][y]=new Critter();
 		}
-		
+		waveangle=waveArea(foodsupply, waveangle);
 		active=findActives(animales, foodsupply);
 		
 		Graphics jframeGraphics=jframe.returnBuffer().getGraphics();
@@ -187,8 +189,8 @@ public static void main(String[] args){
 				{
 					Color c=animales[i][j].returnColour();
 					energyconsumption=c.getRed();
-					energyconsumption+=c.getGreen()/4;
-					energyconsumption+=c.getBlue();
+					energyconsumption+=c.getGreen()/2;
+					energyconsumption+=c.getBlue()/2;
 				}
 				animales[i][j].setDeposit(animales[i][j].returnDeposit()+gainedfood-energyconsumption);
 				
@@ -205,6 +207,19 @@ public static void main(String[] args){
 					rtn.add(new int[]{i,j});
 				}
 		return rtn;
+	}
+	
+	public static double waveArea(int[][] foodsupply, double waveangle){
+		waveangle+=Math.PI/50;
+		for(int i=0; i<foodsupply.length; i++){
+			
+			for(int j=0; j<75; j++){
+				foodsupply[i][j]=(int)(250*(1.35+0.65*Math.sin(waveangle+i*Math.PI/100)));
+				
+				foodsupply[foodsupply.length-i-1][75+j]=(int)(250*(1.35+0.65*Math.sin(waveangle+i*Math.PI/100)));
+			}	
+		}
+		return waveangle;	
 	}
 	
 }
@@ -253,9 +268,9 @@ class Critter{
 	
 	public Critter multiply(){
 		Random RND=new Random();
-		int red=(-5+RND.nextInt(11))+c.getRed();
-		int green=(-5+RND.nextInt(11))+c.getGreen();
-		int blue=(-5+RND.nextInt(11))+c.getBlue();
+		int red=(-15+RND.nextInt(31))+c.getRed();
+		int green=(-15+RND.nextInt(31))+c.getGreen();
+		int blue=(-15+RND.nextInt(31))+c.getBlue();
 		int givefood=depositedfood/2;
 		depositedfood=givefood;
 		
