@@ -55,6 +55,9 @@ class PiFrame extends JFrame implements MouseListener{
 
 	addKeyListener(flipper1);
 	addKeyListener(flipper2);
+	
+	for(int i=0; i<5; i++)
+		walls.add(new Coil((new Random()).nextDouble()*size,(new Random()).nextDouble()*size/2));
 
 	buffer=new BufferedImage(size,size,1);
 	graphics=buffer.getGraphics();
@@ -130,6 +133,7 @@ class Wall{
     double x1,x2,y1,y2;
     double deltaangle=0;
     double length;
+    Color colour=Color.orange;
 
     public Wall(double x1, double y1, double x2, double y2){
 	this.x1=x1;
@@ -141,7 +145,7 @@ class Wall{
 
     double calculateFraction(double c1 , double c2 , double point){return (point-c1)/(c2-c1);}
 
-    private double calculateAngle(double dx, double dy){
+    double calculateAngle(double dx, double dy){
 	double angle =Math.atan(dy/dx);
 
 	if(dx<0)angle+=Math.PI;
@@ -187,9 +191,9 @@ class Wall{
 	//hack
 	
 	if(comingtowards(ball))
-	    ballspeed+=0.65*Math.abs(length*fraction*deltaangle);//elastic bounce/~~~
+	    ballspeed+=0.7*Math.abs(length*fraction*deltaangle);//elastic bounce/~~~
 	else{
-	    ballspeed-=0.65*Math.abs(length*fraction*deltaangle);
+	    ballspeed-=0.7*Math.abs(length*fraction*deltaangle);
 	}
 
 	deltaangle=0;
@@ -211,7 +215,7 @@ class Wall{
     }
 
     public void paint(Graphics g){
-	 g.setColor(Color.orange);
+	 g.setColor(colour);
 	 g.drawLine((int)x1,(int)y1,(int)x2,(int)y2); 
     }
 
@@ -221,6 +225,7 @@ class Flipper extends Wall implements KeyListener{
 
     static final double maxturn=2*Math.PI/3;
     static final double speed=1.0/65;
+    static final double acceleration=1/1500.0;
     boolean active=false;
     double angle,startangle;
     int keycode;
@@ -237,13 +242,13 @@ class Flipper extends Wall implements KeyListener{
 	
 	if(direction>0){
 	    if(active){
-		if(deltaangle>-speed)deltaangle-=1/2000.0;
+		if(deltaangle>-speed)deltaangle-=acceleration;
 		    
 		if(angle+maxturn>startangle){}else{
 		    deltaangle=0;
 		}
 	    }else{
-		if(deltaangle<speed)deltaangle+=1/2000.0;
+		if(deltaangle<speed)deltaangle+=acceleration;
 
 		if(angle<startangle){}else{
 		    deltaangle=0;
@@ -253,13 +258,13 @@ class Flipper extends Wall implements KeyListener{
 	}else{
 	    
 	    if(active){
-		if(deltaangle<speed)deltaangle+=1/2000.0;
+		if(deltaangle<speed)deltaangle+=acceleration;
 
 		if(angle<startangle+maxturn){}else{
 		    deltaangle=0;
 		}
 	    }else{
-		if(deltaangle>-speed)deltaangle-=1/2000.0;
+		if(deltaangle>-speed)deltaangle-=acceleration;
 
 		if(angle>startangle){}else{
 		    deltaangle=0;
@@ -305,4 +310,37 @@ class Ball{
 	y+=dy;
     }
 
+}
+
+class Coil extends Wall{
+	
+	private double radius=35;
+	
+	public Coil(double x, double y){
+		super(x,y,0,0);
+	}
+	
+	public boolean collision(double ballx, double bally, double deltax, double deltay){
+		return Math.hypot((ballx+deltax)-x1, (bally+deltay)-y1)<radius;
+	}
+	
+	public void redirect(Ball ball){
+
+		double ballangle=calculateAngle(ball.dx,ball.dy);
+		double wallnormal=calculateAngle(ball.x-x1,ball.y-y1);
+		
+		double ballspeed=1.01*Math.hypot(ball.dy, ball.dx);
+		
+		double newangle=2*wallnormal-ballangle;
+
+		ball.dx=ballspeed*Math.cos(newangle);
+		ball.dy=ballspeed*Math.sin(newangle);
+	
+    }
+    
+    public void paint(Graphics g){
+	 g.setColor(colour);
+	 g.drawOval((int)(x1-radius),(int)(y1-radius),(int)(2*radius),(int)(2*radius)); 
+    }
+	
 }
