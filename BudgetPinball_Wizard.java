@@ -56,7 +56,7 @@ class PiFrame extends JFrame implements MouseListener{
 	addKeyListener(flipper1);
 	addKeyListener(flipper2);
 	
-	for(int i=0; i<5; i++)
+	for(int i=0; i<15; i++)
 		walls.add(new Coil((new Random()).nextDouble()*size,(new Random()).nextDouble()*size/2));
 
 	buffer=new BufferedImage(size,size,1);
@@ -314,7 +314,7 @@ class Ball{
 
 class Coil extends Wall{
 	
-	private double radius=35;
+	private double radius=20;
 	
 	public Coil(double x, double y){
 		super(x,y,0,0);
@@ -326,15 +326,19 @@ class Coil extends Wall{
 	
 	public void redirect(Ball ball){
 
-		double ballangle=calculateAngle(ball.dx,ball.dy);
+		double ballangle=0;//calculateAngle(ball.dx,ball.dy);
 		double wallnormal=calculateAngle(ball.x-x1,ball.y-y1);
 		
-		double ballspeed=1.01*Math.hypot(ball.dy, ball.dx);
+		double ballspeed=1.1*Math.hypot(ball.dy, ball.dx);
 		
-		double newangle=2*wallnormal-ballangle;
+		double newangle=wallnormal-ballangle;
 
 		ball.dx=ballspeed*Math.cos(newangle);
 		ball.dy=ballspeed*Math.sin(newangle);
+		
+		while(collision(ball.x, ball.y, ball.dx, ball.dy)){
+			ball.update();
+		}
 	
     }
     
