@@ -1,23 +1,33 @@
 <!DOCTYPE html>
 <html>
+	
+<style>
+ .button {
+    background-color: #4CAF50; /* Green */
+    padding: 4px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    width: 150px;
+}
+</style>		
 <body>
-
-
 <canvas id="myCanvas" width="1600" height="400"></canvas>
 
 <br>
-<input type="button" value="<" onclick="steer(1)"></input>
-<input type="button" value="A" onclick="steer(2)"></input>
-<input type="button" value="V" onclick="steer(3)"></input>
-<input type="button" value=">" onclick="steer(0)"></input>
+<input type="button" class="button" value="<" onclick="steer(1)"></input>
+<input type="button" class="button" value="A" onclick="steer(2)"></input>
+<input type="button" class="button" value="V" onclick="steer(3)"></input>
+<input type="button" class="button" value=">" onclick="steer(0)"></input>
 
-<br>
-<img id="myImg1" src="http://2.bp.blogspot.com/_Tv9hZO-X8Gk/TROBnpPLzYI/AAAAAAAAFe4/3hWnumGJ9Rg/s1600/Ginko-Tree-12.jpg" style="display: none;"/>
-<img id="myImg2" src="sav.png" style="display: none;"/>
-<img id="myImg3" src="sav.png" style="display: none;"/>
-<img id="myImg4" src="blob120.png" style="display: none;"/>
-<img id="myImg5" src="http://2.bp.blogspot.com/-ENu1z-tOm5M/TxdgxTByXXI/AAAAAAAAAOk/woABLTlwYxs/s1600/sunset1.jpg" style="display: none;"/>
-<img id="myImg6" src="https://upload.wikimedia.org/wikipedia/commons/d/d1/Karst_HaLongBay_Vietnam_%28pixinn.net%29.jpg" style="display: none;"/>
+<img id="myImg1" src="http://90.230.32.26/image1.png" style="display: none;"/>
+<img id="myImg2" src="http://90.230.32.26/image2.png" style="display: none;"/>
+<img id="myImg3" src="http://90.230.32.26/image3.png" style="display: none;"/>
+<img id="myImg4" src="http://90.230.32.26/image4.png" style="display: none;"/>
+<img id="myImg5" src="http://90.230.32.26/image5.png" style="display: none;"/>
+<img id="myImg6" src="http://90.230.32.26/image5.png" style="display: none;"/>
+<img id="myImg7" src="http://90.230.32.26/image5.png" style="display: none;"/>
 
 <script>
 
@@ -40,18 +50,6 @@ map=[
 [1,1,'c',1,'b',1,'a',1,1,1,5,5,5,5,5,1,1],
 [1,1,1,1,1,1,1,1,1,1,1,'e',1,'d',1,1,1]];
 
-/*map=new Array();
-for(i = 0; i < mapSize; i++){
-	map[i]=new Array();
-	for(j = 0; j < mapSize; j++){ 
-		if(Math.random()>0.67){
-			map[i][j]=Math.floor((Math.random() * 7) + 1);
-		}else{
-			map[i][j]=0;
-		}
-	}
-}*/
-
 mapSize=17;
 
 x=Math.floor((Math.random() * mapSize))+0.5;
@@ -60,7 +58,12 @@ while(isWall(x, y)){
 	x=Math.floor((Math.random() * mapSize))+0.5;
 	y=Math.floor((Math.random() * mapSize))+0.5;	
 }
-nopaintings=6;
+imagesources = ["http://90.230.32.26/image1.png", "http://90.230.32.26/image2.png", "http://90.230.32.26/image3.png", 
+"http://90.230.32.26/image4.png", "http://90.230.32.26/image5.png",  "https://images.duckduckgo.com/iu/?u=http%3A%2F%2F1.bp.blogspot.com%2F_qK3qACBSnTM%2FSwmPmHWtkeI%2FAAAAAAAAAX4%2FzX9fENAjJIY%2Fs1600%2FP1030236.JPG&f=1",
+"https://images.duckduckgo.com/iu/?u=http%3A%2F%2F3.bp.blogspot.com%2F-K5Jw47TmeZ8%2FTYYyyXhJYsI%2FAAAAAAAAFsk%2FkWIzJyrFojY%2Fs1600%2Flouis_wain_ice.jpg&f=1",
+"https://images.duckduckgo.com/iu/?u=http%3A%2F%2F1.bp.blogspot.com%2F-yChzO-q_otI%2FUCH1b2PLmCI%2FAAAAAAAAALA%2FVVzKgo9eXd8%2Fs1600%2FSunflower-Fields-2-4N5NU5W2TV-1024x768.jpg&f=1"
+];
+nopaintings=7;//a,b,c,d,e,f,g
 roomnumberoffset=1000;
 angle=0;
 scale=25;
@@ -94,22 +97,34 @@ function steer(direction){
 			y-=0.1*Math.cos(angle);
 		}
 	}
-	roomnumberoffset+=newRoom(room1, map[parseInt(x)][parseInt(y)]);
+	var roomchange=newRoom(room1, map[parseInt(x)][parseInt(y)]);
+	roomnumberoffset+=roomchange;
+	if(roomchange!=0){
+		loadImageChunk();
+	}
 	redrawPlayer();	
 	rayCast();
 }
 
 function newRoom(room1, room2){
 	
-	if(room1==2 && room2==5) {
-		return 4;
+	if( (room1-room2)==1 ||  (room1==2 && room2==5) ) {
+		return nopaintings;
 	}
 	
-	if(room1==5 && room2==2) {
-		return -4;
+	if( (room1-room2)==-1 ||  (room1==5 && room2==2)) {
+		return -nopaintings;
 	}
 	
 	return 0;
+}
+
+function loadImageChunk(){
+	for(i=1; i<=nopaintings; i++){
+		var loadimagenumber=(roomnumberoffset+i)%imagesources.length;
+		var val = document.getElementById('myImg'+i);
+			val.src = imagesources[loadimagenumber];
+	}
 }
 
 function redrawMap() {
@@ -218,20 +233,30 @@ function paintStripe(range, sinlen, coslen, screenx){
 	var rangecofficient=100;
 	var rangeoffset=10;
 	if(squarex<0 || squarex>=mapSize || squarey<0 || squarey>=mapSize || map[squarex][squarey]==1){
+		var color;
+		if(Math.abs((xpos%1)-0.5)<Math.abs((ypos%1)-0.5)){
+			if((ypos%1)<0.5) {
+				color="D3D3D3";
+			} else {
+				color="#C8C8C8";
+			}
+		}else{
+			if((xpos%1)>0.5) {
+				color="#BEBEBE";
+			} else {
+				color="#B0B0B0";
+			}
+		}	
 		ctx.beginPath();
-		ctx.fillStyle="white"; 
+		ctx.fillStyle=color; 
 		ctx.rect(screenx*7.5, midy-rangeoffset-rangecofficient/range, 15, 2*rangeoffset+2*rangecofficient/range);
 		ctx.fill();
 		return;
 	}else{
-		//image = document.getElementById("myImg"+map[squarex][squarey]);
-		//image = document.getElementById("myImg4");
 		image = imageLookup(map[parseInt(x)][parseInt(y)], map[squarex][squarey]);//current roomnumber, looked upon painting
 	}
-	
 	xpos++;//since these variables only used for modulo and there seems to be a problem with modulo negative numbers
 	ypos++;
-	
 	if(Math.abs((xpos%1)-0.5)<Math.abs((ypos%1)-0.5)){
 		if((ypos%1)<0.5) {
 			position=xpos%1;
@@ -250,7 +275,7 @@ function paintStripe(range, sinlen, coslen, screenx){
 
 function imageLookup(roomnumber, letter){
 	var letterlookup=(letter.charCodeAt(0) - 97);
-	var paintingnr=((roomnumber+letterlookup+roomnumberoffset)%nopaintings)+1;
+	var paintingnr=(letterlookup%nopaintings)+1;
 	return document.getElementById("myImg"+paintingnr);
 }
 
