@@ -2,8 +2,9 @@
 <html>
 	
 <style>
+body {background-color: #BFCFC8;}
  .button {
-    background-color: #4CAF50; /* Green */
+    background-color: CornflowerBlue;
     padding: 4px 20px;
     text-align: center;
     text-decoration: none;
@@ -13,6 +14,7 @@
 }
 </style>		
 <body>
+<p>=======VIRTUAL ART GALLERY=======</p>
 <canvas id="myCanvas" width="1600" height="400"></canvas>
 
 <br>
@@ -21,13 +23,13 @@
 <input type="button" class="button" value="V" onclick="steer(3)"></input>
 <input type="button" class="button" value=">" onclick="steer(0)"></input>
 
-<img id="myImg1" src="http://90.230.32.26/image1.png" style="display: none;"/>
-<img id="myImg2" src="http://90.230.32.26/image2.png" style="display: none;"/>
-<img id="myImg3" src="http://90.230.32.26/image3.png" style="display: none;"/>
-<img id="myImg4" src="http://90.230.32.26/image4.png" style="display: none;"/>
-<img id="myImg5" src="http://90.230.32.26/image5.png" style="display: none;"/>
-<img id="myImg6" src="http://90.230.32.26/image5.png" style="display: none;"/>
-<img id="myImg7" src="http://90.230.32.26/image5.png" style="display: none;"/>
+<img id="myImg1"  style="display: none;"/>
+<img id="myImg2"  style="display: none;"/>
+<img id="myImg3"  style="display: none;"/>
+<img id="myImg4"  style="display: none;"/>
+<img id="myImg5"  style="display: none;"/>
+<img id="myImg6"  style="display: none;"/>
+<img id="myImg7"  style="display: none;"/>
 
 <script>
 
@@ -58,8 +60,10 @@ while(isWall(x, y)){
 	x=Math.floor((Math.random() * mapSize))+0.5;
 	y=Math.floor((Math.random() * mapSize))+0.5;	
 }
-imagesources = ["http://90.230.32.26/image1.png", "http://90.230.32.26/image2.png", "http://90.230.32.26/image3.png", 
-"http://90.230.32.26/image4.png", "http://90.230.32.26/image5.png",  "https://images.duckduckgo.com/iu/?u=http%3A%2F%2F1.bp.blogspot.com%2F_qK3qACBSnTM%2FSwmPmHWtkeI%2FAAAAAAAAAX4%2FzX9fENAjJIY%2Fs1600%2FP1030236.JPG&f=1",
+
+var host=location.protocol+"//"+location.hostname;
+imagesources = [host+"/image1.png",host+"/image2.png", host+"/image3.png", 
+host+"/image4.png", host+"/image5.png",  "https://images.duckduckgo.com/iu/?u=http%3A%2F%2F1.bp.blogspot.com%2F_qK3qACBSnTM%2FSwmPmHWtkeI%2FAAAAAAAAAX4%2FzX9fENAjJIY%2Fs1600%2FP1030236.JPG&f=1",
 "https://images.duckduckgo.com/iu/?u=http%3A%2F%2F3.bp.blogspot.com%2F-K5Jw47TmeZ8%2FTYYyyXhJYsI%2FAAAAAAAAFsk%2FkWIzJyrFojY%2Fs1600%2Flouis_wain_ice.jpg&f=1",
 "https://images.duckduckgo.com/iu/?u=http%3A%2F%2F1.bp.blogspot.com%2F-yChzO-q_otI%2FUCH1b2PLmCI%2FAAAAAAAAALA%2FVVzKgo9eXd8%2Fs1600%2FSunflower-Fields-2-4N5NU5W2TV-1024x768.jpg&f=1"
 ];
@@ -68,6 +72,7 @@ roomnumberoffset=1000;
 angle=0;
 scale=25;
 xoffset=750;
+loadImageChunk();
 redrawMap();
 redrawPlayer();
 rayCast();
@@ -188,13 +193,13 @@ function rayCast(){
 	var anglediff=Math.PI/750.0;
 	
 	for(var i=-187; i<187; i++) {
-		current=angle+anglediff*i;
+		current=angle+anglediff*i*(5/4);
 		sinlen=-Math.sin(current);
 		coslen=Math.cos(current);
 		
 		range=closestWall(sinlen, coslen);
 		if(range>0) {
-			paintStripe(range, sinlen, coslen, 187+i);
+			paintStripe(range, sinlen, coslen, 187+i, i*anglediff);
 		}
 	}	
 }
@@ -235,7 +240,7 @@ function lengthToWall(moduloposition, direction){
 	return -(moduloposition/direction);
 }
 
-function paintStripe(range, sinlen, coslen, screenx){
+function paintStripe(range, sinlen, coslen, screenx, angle){
 	var xpos=x+range*coslen;
 	var ypos=y+range*sinlen;
 	var position=0;
@@ -245,7 +250,7 @@ function paintStripe(range, sinlen, coslen, screenx){
 	var squarey=parseInt(ypos);
 	var c = document.getElementById("myCanvas");
 	var ctx = c.getContext("2d");
-	var rangecofficient=100;
+	var rangecofficient=100/Math.cos(angle);
 	var rangeoffset=10;
 	xpos++;//since these variables only used for modulo and there seems to be a problem with modulo negative numbers
 	ypos++;
