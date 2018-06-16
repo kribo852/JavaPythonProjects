@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<body>
+
+<canvas id="myCanvas" width="800" height="800"></canvas><br>
+<button>starta om</button>
+
+<script>
+
+$(document).ready(function(){
+
+   $("button").click(function(){
+	   startcolour = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
+	   endcolour = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
+       reset();
+    });
+
+}); 
+
+c = document.getElementById("myCanvas");
+ctx = c.getContext("2d");
+startcolour = [255, 0, 75];
+endcolour = [25, 12, 75];
+colourPixel = null;
+activepixels = null; 
+usedpixels = null; 
+windowsize=800;
+middlepoint =windowsize/4;
+
+reset();
+var id = setInterval(function(){ redrawMap(activepixels, usedpixels, middlepoint); }, 1);
+
+function reset(){
+	ctx.clearRect(0,0,windowsize,windowsize);
+	colourPixel = {x:middlepoint, y:middlepoint, red:startcolour[0], green:startcolour[1], blue:startcolour[2], layer:1};
+	activepixels = new Array(colourPixel); 
+	usedpixels = new Array(); 
+}
+
+function redrawMap(activepixels, usedpixels, middlepoint) {
+
+	if(activepixels.length > 0) {
+		ctx.save();
+		for(iteration = 0; iteration<25; iteration++) {
+			var randomindex = Math.floor(Math.random() * activepixels.length);
+			var apx = activepixels[randomindex].x;
+			var apy = activepixels[randomindex].y;
+			var red = activepixels[randomindex].red;
+			var green = activepixels[randomindex].green;
+			var blue = activepixels[randomindex].blue;
+			var previouslayer = activepixels[randomindex].layer;
+			var scale=2;
+			var maxlayer = 8;
+			
+			ctx.fillStyle="rgb("+red+","+green+", "+blue+")";
+			activepixels.splice(randomindex, 1); 
+			ctx.fillRect(apx*scale, apy*scale, scale, scale);
+		
+			for(i=-1; i<2; i++)for(j=-1; j<2; j++) {
+				if(Math.abs(i+j) === 1 && usedpixels[(apx+i)+(apy+j)*windowsize] === undefined && apx+i>=0 && apy+j>=0 && apx+i<middlepoint*2 && apy+j<middlepoint*2) {
+					usedpixels[(apx+i)+(apy+j)*windowsize] = true;
+					
+					var currentlayer = determineLayer(apx+i, apy+j, middlepoint, maxlayer);
+					if(currentlayer <= previouslayer) {
+						activepixels.push({x:(apx+i), y:(apy+j), red:mutateColour(red), green:mutateColour(green), blue:mutateColour(blue), layer:previouslayer});
+					} else {
+						var contrastcolour = contrastColours(currentlayer, maxlayer);
+						activepixels.push({x:(apx+i), y:(apy+j), red:contrastcolour[0], green:contrastcolour[1], blue:contrastcolour[2], layer:currentlayer});
+					}
+				}
+			}
+		}
+		ctx.restore();
+	}
+}
+
+
+function mutateColour(colour){
+	colour += (Math.floor((Math.random()-Math.random()) * 10));
+	return boundColour(colour);
+}
+
+function boundColour(colour){
+	return Math.min(Math.max(0, colour), 255);
+}
+
+function determineLayer(xposition, yposition, middlepoint, maxlayer){
+	
+	var pointdistance = Math.hypot(xposition-middlepoint, yposition-middlepoint);
+	
+	if(pointdistance === 0) {
+		return 1;
+	}
+	var angle = determineAngle(xposition, yposition, middlepoint);
+	
+	var fibnum1 = 4;
+	var fibnum2 = 4;
+	
+	var i;
+	for (i = 1; i < maxlayer; i++) {
+		var curvyfier = fibnum1+fibnum2;
+		fibnum1 = fibnum2;
+		fibnum2 = curvyfier;
+		if(i % 2 < 1){
+			curvyfier = curvyfier + 0.25*curvyfier*Math.sin(angle*Math.PI/36);
+		}else{
+			curvyfier = curvyfier + 0.25*curvyfier*Math.sin((angle+36)*Math.PI/36);
+		}
+		if(pointdistance < curvyfier ){
+			return i;
+		}
+	}
+	return maxlayer;
+}
+
+function determineAngle(xposition, yposition, middlepoint){
+	xposition-=middlepoint;
+	yposition-=middlepoint;
+	return 180*(Math.PI+Math.atan2(xposition, yposition))/Math.PI;
+}
+
+function contrastColours(layer, maxlayer){
+	var proportion = layer/maxlayer;
+	var red = proportion*endcolour[0]+(1-proportion)*startcolour[0];
+	var green = proportion*endcolour[1]+(1-proportion)*startcolour[1];
+	var blue = proportion*endcolour[2]+(1-proportion)*startcolour[2];
+	return [boundColour(Math.round(red)), boundColour(Math.round(green)), boundColour(Math.round(blue))];	//doesn't seem to like decimal numbers
+}
+
+</script>
+</body>
+</html>
