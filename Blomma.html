@@ -1,84 +1,98 @@
 ﻿<!DOCTYPE html>
 <html>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <body>
 
-<canvas id="myCanvas" width="800" height="800"></canvas><br>
-<button>starta om</button>
+<button class="blomma-knapp" onclick="newColourReset()">Blomma!</button><br>
+<canvas id="myCanvas" width="800" height="800"></canvas>
+
+	<style type="text/css">
+	
+	.blomma-knapp{
+		font-family: consolas;
+		font-size: 15px;
+		font-weight: bolder;
+	}
+
+	</style>
 
 <script>
 
-$(document).ready(function(){
-
-   $("button").click(function(){
-	   startcolour = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
-	   endcolour = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
-       reset();
-    });
-
-}); 
-
-c = document.getElementById("myCanvas");
-ctx = c.getContext("2d");
+ctx = document.getElementById("myCanvas").getContext("2d");
 startcolour = [255, 0, 75];
 endcolour = [25, 12, 75];
+document.body.style.background = makeRGBColour(endcolour[0], endcolour[1], endcolour[2]);
 colourPixel = null;
 activepixels = null; 
 usedpixels = null; 
-windowsize=800;
-middlepoint =windowsize/4;
+const windowsize=800;
+const middlepoint =windowsize/4;
 
 reset();
-var id = setInterval(function(){ redrawMap(activepixels, usedpixels, middlepoint); }, 1);
+setInterval(function(){ redrawMap(activepixels, usedpixels, middlepoint); }, 1);
+
+function newColourReset() {
+	
+	startcolour = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
+	endcolour = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
+	
+	document.body.style.background = makeRGBColour(endcolour[0], endcolour[1], endcolour[2]);
+    reset();
+}
 
 function reset(){
-	ctx.clearRect(0,0,windowsize,windowsize);
 	colourPixel = {x:middlepoint, y:middlepoint, red:startcolour[0], green:startcolour[1], blue:startcolour[2], layer:1};
 	activepixels = new Array(colourPixel); 
 	usedpixels = new Array(); 
 }
 
-function redrawMap(activepixels, usedpixels, middlepoint) {
+function makeRGBColour(r,g,b) {
+	return "rgb("+r+","+g+","+b+")";
+}
 
+function redrawMap(activepixels, usedpixels, middlepoint) {
 	if(activepixels.length > 0) {
-		ctx.save();
-		for(iteration = 0; iteration<25; iteration++) {
-			var randomindex = Math.floor(Math.random() * activepixels.length);
-			var apx = activepixels[randomindex].x;
-			var apy = activepixels[randomindex].y;
-			var red = activepixels[randomindex].red;
-			var green = activepixels[randomindex].green;
-			var blue = activepixels[randomindex].blue;
-			var previouslayer = activepixels[randomindex].layer;
-			var scale=2;
-			var maxlayer = 8;
+		const scale=2;
+		const maxlayer = 10;
+		const maxiterations = Math.sqrt(activepixels.length); //grow percent of active pixels
+		for(iteration = 0; iteration<maxiterations && activepixels.length>0; iteration++) {
+			const randomindex = Math.floor(Math.random() * activepixels.length);
+			const previouslayer = activepixels[randomindex].layer;
+			const red = activepixels[randomindex].red;
+			const green = activepixels[randomindex].green;
+			const blue = activepixels[randomindex].blue;
+			const apx = activepixels[randomindex].x;
+			const apy = activepixels[randomindex].y;
 			
-			ctx.fillStyle="rgb("+red+","+green+", "+blue+")";
-			activepixels.splice(randomindex, 1); 
+			ctx.fillStyle=makeRGBColour(red, green, blue);
 			ctx.fillRect(apx*scale, apy*scale, scale, scale);
-		
+			activepixels.splice(randomindex, 1); 
+			var i;
+			var j;
 			for(i=-1; i<2; i++)for(j=-1; j<2; j++) {
-				if(Math.abs(i+j) === 1 && usedpixels[(apx+i)+(apy+j)*windowsize] === undefined && apx+i>=0 && apy+j>=0 && apx+i<middlepoint*2 && apy+j<middlepoint*2) {
-					usedpixels[(apx+i)+(apy+j)*windowsize] = true;
+				var newactivepixelx = apx+i;
+				var newactivepixely = apy+j;
+
+				if(Math.abs(i+j) === 1 && usedpixels[newactivepixelx+newactivepixely*windowsize] === undefined && newactivepixelx>=0 && newactivepixely>=0 &&
+				 	newactivepixelx<middlepoint*2 && newactivepixely<middlepoint*2) {
+					usedpixels[newactivepixelx+newactivepixely*windowsize] = true;
 					
-					var currentlayer = determineLayer(apx+i, apy+j, middlepoint, maxlayer);
+					var currentlayer = determineLayer(newactivepixelx, newactivepixely, middlepoint, maxlayer);
 					if(currentlayer <= previouslayer) {
-						activepixels.push({x:(apx+i), y:(apy+j), red:mutateColour(red), green:mutateColour(green), blue:mutateColour(blue), layer:previouslayer});
+						activepixels.push({x:newactivepixelx, y:newactivepixely, red:mutateColour(red), green:mutateColour(green), blue:mutateColour(blue), layer:previouslayer});
 					} else {
 						var contrastcolour = contrastColours(currentlayer, maxlayer);
-						activepixels.push({x:(apx+i), y:(apy+j), red:contrastcolour[0], green:contrastcolour[1], blue:contrastcolour[2], layer:currentlayer});
+						activepixels.push({x:newactivepixelx, y:newactivepixely, red:contrastcolour[0], green:contrastcolour[1], blue:contrastcolour[2], layer:currentlayer});
 					}
 				}
 			}
 		}
-		ctx.restore();
+	} else {
+		reset();
 	}
 }
 
-
 function mutateColour(colour){
-	colour += (Math.floor((Math.random()-Math.random()) * 10));
-	return boundColour(colour);
+	return boundColour(colour+Math.floor((Math.random()-Math.random()) * 10));
 }
 
 function boundColour(colour){
@@ -87,15 +101,14 @@ function boundColour(colour){
 
 function determineLayer(xposition, yposition, middlepoint, maxlayer){
 	
-	var pointdistance = Math.hypot(xposition-middlepoint, yposition-middlepoint);
-	
-	if(pointdistance === 0) {
+	if(xposition === middlepoint && yposition ===middlepoint) {
 		return 1;
 	}
-	var angle = determineAngle(xposition, yposition, middlepoint);
 	
-	var fibnum1 = 4;
-	var fibnum2 = 4;
+	const pointdistance = Math.hypot(xposition-middlepoint, yposition-middlepoint);
+	const angle = determineAngle(xposition, yposition, middlepoint);
+	var fibnum1 = 2;
+	var fibnum2 = 2;
 	
 	var i;
 	for (i = 1; i < maxlayer; i++) {
@@ -103,9 +116,9 @@ function determineLayer(xposition, yposition, middlepoint, maxlayer){
 		fibnum1 = fibnum2;
 		fibnum2 = curvyfier;
 		if(i % 2 < 1){
-			curvyfier = curvyfier + 0.25*curvyfier*Math.sin(angle*Math.PI/36);
+			curvyfier = curvyfier*(1+0.225*Math.sin(angle*10));
 		}else{
-			curvyfier = curvyfier + 0.25*curvyfier*Math.sin((angle+36)*Math.PI/36);
+			curvyfier = curvyfier*(1+0.225*Math.sin(10*(angle+Math.PI/2)));
 		}
 		if(pointdistance < curvyfier ){
 			return i;
@@ -115,17 +128,15 @@ function determineLayer(xposition, yposition, middlepoint, maxlayer){
 }
 
 function determineAngle(xposition, yposition, middlepoint){
-	xposition-=middlepoint;
-	yposition-=middlepoint;
-	return 180*(Math.PI+Math.atan2(xposition, yposition))/Math.PI;
+	return Math.atan2(xposition-middlepoint, yposition-middlepoint);
 }
 
 function contrastColours(layer, maxlayer){
-	var proportion = layer/maxlayer;
-	var red = proportion*endcolour[0]+(1-proportion)*startcolour[0];
-	var green = proportion*endcolour[1]+(1-proportion)*startcolour[1];
-	var blue = proportion*endcolour[2]+(1-proportion)*startcolour[2];
-	return [boundColour(Math.round(red)), boundColour(Math.round(green)), boundColour(Math.round(blue))];	//doesn't seem to like decimal numbers
+	const proportion = layer/maxlayer;
+	const red = proportion*endcolour[0]+(1-proportion)*startcolour[0];
+	const green = proportion*endcolour[1]+(1-proportion)*startcolour[1];
+	const blue = proportion*endcolour[2]+(1-proportion)*startcolour[2];
+	return [Math.round(red), Math.round(green), Math.round(blue)];	//doesn't seem to like decimal numbers
 }
 
 </script>
