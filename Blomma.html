@@ -52,42 +52,45 @@ function makeRGBColour(r,g,b) {
 function redrawMap(activepixels, usedpixels, middlepoint) {
 	if(activepixels.length > 0) {
 		const scale=2;
-		const maxlayer = 10;
-		const maxiterations = Math.sqrt(activepixels.length); //grow percent of active pixels
+		const maxiterations = Math.max(1, activepixels.length/10); 
 		for(iteration = 0; iteration<maxiterations && activepixels.length>0; iteration++) {
 			const randomindex = Math.floor(Math.random() * activepixels.length);
-			const previouslayer = activepixels[randomindex].layer;
 			const red = activepixels[randomindex].red;
 			const green = activepixels[randomindex].green;
 			const blue = activepixels[randomindex].blue;
 			const apx = activepixels[randomindex].x;
 			const apy = activepixels[randomindex].y;
+			const addneighbourfunc=findneighbours(activepixels[randomindex].layer, red, green, blue, apx, apy, usedpixels, middlepoint);//has to be done before splice
 			
 			ctx.fillStyle=makeRGBColour(red, green, blue);
 			ctx.fillRect(apx*scale, apy*scale, scale, scale);
 			activepixels.splice(randomindex, 1); 
-			var i;
-			var j;
-			for(i=-1; i<2; i++)for(j=-1; j<2; j++) {
-				var newactivepixelx = apx+i;
-				var newactivepixely = apy+j;
 
-				if(Math.abs(i+j) === 1 && usedpixels[newactivepixelx+newactivepixely*windowsize] === undefined && newactivepixelx>=0 && newactivepixely>=0 &&
-				 	newactivepixelx<middlepoint*2 && newactivepixely<middlepoint*2) {
-					usedpixels[newactivepixelx+newactivepixely*windowsize] = true;
-					
-					var currentlayer = determineLayer(newactivepixelx, newactivepixely, middlepoint, maxlayer);
-					if(currentlayer <= previouslayer) {
-						activepixels.push({x:newactivepixelx, y:newactivepixely, red:mutateColour(red), green:mutateColour(green), blue:mutateColour(blue), layer:previouslayer});
-					} else {
-						var contrastcolour = contrastColours(currentlayer, maxlayer);
-						activepixels.push({x:newactivepixelx, y:newactivepixely, red:contrastcolour[0], green:contrastcolour[1], blue:contrastcolour[2], layer:currentlayer});
-					}
-				}
-			}
+			[[1,0],[0,1],[-1,0],[0,-1]].forEach(addneighbourfunc);
 		}
 	} else {
 		reset();
+	}
+}
+
+function findneighbours(previouslayer, red, green, blue, apx, apy, usedpixels, middlepoint){
+	return function(adjacent){
+			const maxlayer = 10;
+			const newactivepixelx = apx+adjacent[0];
+			const newactivepixely = apy+adjacent[1];
+
+			if(usedpixels[newactivepixelx+newactivepixely*windowsize] === undefined && newactivepixelx>=0 && newactivepixely>=0 &&
+				newactivepixelx<middlepoint*2 && newactivepixely<middlepoint*2) {
+				usedpixels[newactivepixelx+newactivepixely*windowsize] = true;
+
+			const currentlayer = determineLayer(newactivepixelx, newactivepixely, middlepoint, maxlayer);
+			if(currentlayer <= previouslayer) {
+				activepixels.push({x:newactivepixelx, y:newactivepixely, red:mutateColour(red), green:mutateColour(green), blue:mutateColour(blue), layer:previouslayer});
+			} else {
+				const contrastcolour = contrastColours(currentlayer, maxlayer);
+				activepixels.push({x:newactivepixelx, y:newactivepixely, red:contrastcolour[0], green:contrastcolour[1], blue:contrastcolour[2], layer:currentlayer});
+			}
+		}
 	}
 }
 
@@ -116,9 +119,9 @@ function determineLayer(xposition, yposition, middlepoint, maxlayer){
 		fibnum1 = fibnum2;
 		fibnum2 = curvyfier;
 		if(i % 2 < 1){
-			curvyfier = curvyfier*(1+0.225*Math.sin(angle*10));
+			curvyfier = curvyfier*(1+0.225*Math.sin(angle*7));
 		}else{
-			curvyfier = curvyfier*(1+0.225*Math.sin(10*(angle+Math.PI/2)));
+			curvyfier = curvyfier*(1+0.225*Math.sin(7*(angle+Math.PI)));
 		}
 		if(pointdistance < curvyfier ){
 			return i;
