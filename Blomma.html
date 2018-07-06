@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="swedish">
+<title>Blomma</title>
 <body>
 
 <button class="blomma-knapp" onclick="newColourReset()">Blomma!</button><br>
@@ -21,14 +22,13 @@ ctx = document.getElementById("myCanvas").getContext("2d");
 startcolour = [255, 0, 75];
 endcolour = [25, 12, 75];
 document.body.style.background = makeRGBColour(endcolour[0], endcolour[1], endcolour[2]);
-colourPixel = null;
 activepixels = null; 
 usedpixels = null; 
 const windowsize=800;
 const middlepoint =windowsize/4;
 
 reset();
-setInterval(function(){ redrawMap(activepixels, usedpixels, middlepoint); }, 1);
+setInterval(function(){ redrawBlomma(activepixels, usedpixels, middlepoint); }, 1);
 
 function newColourReset() {
 	
@@ -40,7 +40,7 @@ function newColourReset() {
 }
 
 function reset(){
-	colourPixel = {x:middlepoint, y:middlepoint, red:startcolour[0], green:startcolour[1], blue:startcolour[2], layer:1};
+	let colourPixel = {x:middlepoint, y:middlepoint, red:startcolour[0], green:startcolour[1], blue:startcolour[2], layer:1};
 	activepixels = new Array(colourPixel); 
 	usedpixels = new Array(); 
 }
@@ -49,11 +49,11 @@ function makeRGBColour(r,g,b) {
 	return "rgb("+r+","+g+","+b+")";
 }
 
-function redrawMap(activepixels, usedpixels, middlepoint) {
+function redrawBlomma(activepixels, usedpixels, middlepoint) {
 	if(activepixels.length > 0) {
 		const scale=2;
-		const maxiterations = Math.max(1, activepixels.length/10); 
-		for(iteration = 0; iteration<maxiterations && activepixels.length>0; iteration++) {
+		const maxiterations = Math.max(1, activepixels.length/10);
+		for(let iteration = 0; iteration<maxiterations && activepixels.length>0; iteration++) {
 			const randomindex = Math.floor(Math.random() * activepixels.length);
 			const red = activepixels[randomindex].red;
 			const green = activepixels[randomindex].green;
@@ -110,12 +110,11 @@ function determineLayer(xposition, yposition, middlepoint, maxlayer){
 	
 	const pointdistance = Math.hypot(xposition-middlepoint, yposition-middlepoint);
 	const angle = determineAngle(xposition, yposition, middlepoint);
-	var fibnum1 = 2;
-	var fibnum2 = 2;
+	let fibnum1 = 2;
+	let fibnum2 = 2;
 	
-	var i;
-	for (i = 1; i < maxlayer; i++) {
-		var curvyfier = fibnum1+fibnum2;
+	for (let i = 1; i < maxlayer; i++) {
+		let curvyfier = fibnum1+fibnum2;
 		fibnum1 = fibnum2;
 		fibnum2 = curvyfier;
 		if(i % 2 < 1){
