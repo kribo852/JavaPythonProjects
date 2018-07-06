@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+ <meta charset="UTF-8"> 
+<html lang="swedish">
+	<style type="text/css">
+
+	.input {
+		width: 20px;
+		font-size: 24px;
+		font-style: bolder;
+		font: consolas;
+	}
+		
+	</style>
+<title>CHIFFER</title>
+<body >
+	<br><br>
+	<div id="div"></div>
+	
+
+</body>
+<script type="text/javascript" src="./Krypto.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+
+<script >
+	map = makemap();
+	letters = clearTextPhrase().match(/.{1,1}/g);
+
+	window.onload = function() {
+		fillChiffer(map, false);
+	};
+
+	$(document).ready(function(){
+		$(".input").keyup(function() {
+			var currentId = $(this).attr('id');
+			var currentValue = $(this).val();
+			map=replace(map, letters[currentId], currentValue);
+			fillChiffer(map, true);
+		});
+	});
+
+	function fillChiffer(lettermapping, started) {
+		//$( "#div" ).empty();
+		if(!started) {
+			for(var i=0; i<clearTextPhrase().length; i++) {
+				var input = document.createElement("input");
+				input.id =  i;
+
+				input.classList.add('input');
+				document.getElementById('div').appendChild(input);   
+			}
+		}
+		
+		for(var i = 0; i < letters.length; i++) {
+			var input= document.getElementById(i);
+			input.value=lettermapping[letters[i]];
+			if(letters[i]===" "){
+				input.disabled=true;
+			}
+		} 
+	}	
+
+</script>
+	
+</html>
+
+
+
+
