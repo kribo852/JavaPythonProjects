@@ -5,29 +5,48 @@
 
 	.input {
 		width: 20px;
-		font-size: 24px;
+		font-size: 20px;
 		font-style: bolder;
-		font: consolas;
+		font-family: Monospace;
+	}
+	
+	.input-focus {
+		background-color:lightgreen;
+	}
+	
+	.p{
+		font-size: 20px;
+		font-style: bolder;
+		font-family: Monospace;
+	}
+	
+	body {
+		background-image: url("sav.png");
+		background-size: 100%;
+	}
+	
+	.div-word {
+		display: inline-block;
+		margin-right: 13px;
+		margin-left: 12px;
 	}
 		
 	</style>
 <title>CHIFFER</title>
-<body >
-	<br><br>
-	<div id="div"></div>
+<body>
+	<br><p class="p">CHIFFER! Skriv in bokstäver i rutorna för att lösa chiffret. Chiffret kan innehålla felstavningar, specialtecken och engelska ord.</p><br>
+	<div id="main-div"></div>
 	
 
 </body>
-<script type="text/javascript" src="./Krypto.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
-
-<script >
+<script src="jquery-3.3.1.min.js"></script>
+<script>
 	map = makemap();
 	letters = clearTextPhrase().match(/.{1,1}/g);
-
+	fillChiffer(map, letters);
+	
 	window.onload = function() {
-		fillChiffer(map, false);
+		
 	};
 
 	$(document).ready(function(){
@@ -35,35 +54,106 @@
 			var currentId = $(this).attr('id');
 			var currentValue = $(this).val();
 			map=replace(map, letters[currentId], currentValue);
-			fillChiffer(map, true);
+			setLetters(map, letters);
 		});
+		
+		$(".input").focus(function() {
+			var currentId = $(this).attr('id');
+			var correctvalue = letters[currentId];
+			addFocusclass(letters, correctvalue);
+		});
+		
+		$(".input").blur(function() {
+			var currentId = $(this).attr('id');
+			var correctvalue = letters[currentId];
+			removeFocusclass(letters, correctvalue);
+		});
+		
 	});
 
-	function fillChiffer(lettermapping, started) {
-		//$( "#div" ).empty();
-		if(!started) {
-			for(var i=0; i<clearTextPhrase().length; i++) {
-				var input = document.createElement("input");
+	function fillChiffer(lettermapping, letters) {
+			var div = document.createElement('div');
+			div.classList.add('div-word');
+		for(var i=0; i<letters.length; i++) {
+			if(letters[i] !== " "){
+				var input = document.createElement('input');
 				input.id =  i;
 
 				input.classList.add('input');
-				document.getElementById('div').appendChild(input);   
+				div.appendChild(input);
+			} else {
+				document.getElementById('main-div').appendChild(div);
+				var div = document.createElement('div');
+				div.classList.add('div-word');
+			}   
+		}
+		document.getElementById('main-div').appendChild(div);
+		setLetters(lettermapping, letters);
+	}
+	
+	function setLetters(lettermapping, letters){
+		for(var i = 0; i < letters.length; i++) {
+			if(letters[i]!==" "){//refering to nonexistion element craches script
+				var input= document.getElementById(i);
+				input.value=lettermapping[letters[i]];
 			}
 		}
-		
-		for(var i = 0; i < letters.length; i++) {
-			var input= document.getElementById(i);
-			input.value=lettermapping[letters[i]];
-			if(letters[i]===" "){
-				input.disabled=true;
-			}
-		} 
-	}	
-
-</script>
+	}
 	
+	function addFocusclass(letters, focusletter){
+		for(var i = 0; i < letters.length; i++) {
+			if(letters[i]===focusletter){
+				var input= document.getElementById(i);
+				input.classList.add('input-focus');
+			}
+		}
+	}
+	
+	function removeFocusclass(letters, focusletter){
+		for(var i = 0; i < letters.length; i++) {
+			if(letters[i]===focusletter){
+				var input= document.getElementById(i);
+				input.classList.remove('input-focus');
+			}
+		}
+	}
+	
+	function makemap() {
+		var rtn = {};
+		for (var i = 255; i >= 0; i--) {
+			rtn[String.fromCharCode(i)]=String.fromCharCode(getRandomInt(256));
+			while(!rtn[String.fromCharCode(i)].match(/^[0-9A-Za-z]{1}$/)) {
+				rtn[String.fromCharCode(i)]=String.fromCharCode(getRandomInt(256));
+			}
+		}
+		rtn[' ']=' ';
+		return rtn;
+	}
+
+	function getRandomInt(max) {
+	  return Math.floor(Math.random() * Math.floor(max));
+	}
+	
+	function clearTextPhrase() {
+		var sentence = Math.random();
+		if(sentence<0.33){
+			return 'KEEP IT LOUD ÄR AWESOME!! MATTECENTRUM GER ALLA SOM FRÅGAR EN TABLETTASK. ANALYS AV FREKVENSER FÖR BOKSTÄVER, BOKSTAVSFÖLJDER OCH ORD ÄR ANVÄNDBARA FÖR ATT LÖSA ENKLA CHIFFER. JU LÄNGRE EN CHIFFER-TEXT ÄR DESTO MER ANVÄNDBAR INFORMATION FÖR ATT LÖSA CHIFFRET INNEHÅLLER DEN.';
+		}
+		if(sentence<0.66){
+			return 'MATTECENTRUM ÄR EN RIKSTÄCKANDE DEMOKRATISK, POLITISKT OCH RELIGÖST OBUNDEN ORGANISATION SOM ANORDNAR INDIVIDUELL LÄXHJÄLP. BLI MEDLEM OCH FÅ MÖJLIGHET ATT PÅVERKA MATTECENTRUMS UTVECKLINGSARBETE. VARJE ÅR HAR MATTECENTRUM ÅRSMÖTE TILL VILKET ALLA MEDLEMMAR ÄR INBJUDNA. ALLA SOM VILL KAN BLI MEDLEMMAR, MER INFORMATION FINNS PÅ VÅR HEMSIDA.';
+		}
+		return 'UTÖVER FREKVENSER FÖR BOKSTÄVER, BIGRAM OCH TRIGRAM, ALLTSÅ BOKSTAVSFÖLJDER MED TVÅ ELLER TRE BOKSTÄVER, KAN KONTEXT ANVÄNDAS FÖR ATT LÖSA KRYPTON. TILL EXEMPEL ÄR ORDET MATTECENTRUM VANLIGT FÖREKOMMANDE I DE HÄR KRYPTONA. GENOM ATT GISSA ATT ETT ORD ÄR MATTECENTRUM FÅS EN STOR MÄNGD INFORMATION OM VAD DE ANDRA ORDEN KAN VARA.'  
+	}
+	
+	function isDecrypted(string1, string2){
+		return string1.toLowerCase()=== string2.toLowerCase();
+	}
+	
+	function replace(lettermapping, correctletter, mappedletter){
+		var newlettermapping = Object.create(lettermapping);
+		newlettermapping[correctletter] = mappedletter;
+		return newlettermapping;
+	}
+	
+</script>
 </html>
-
-
-
-
