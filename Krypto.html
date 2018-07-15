@@ -36,7 +36,18 @@
 <body>
 	<br><p class="p">CHIFFER! Skriv in bokstäver i rutorna för att lösa chiffret. Chiffret kan innehålla felstavningar, specialtecken och engelska ord.</p><br>
 	<div id="main-div"></div>
-	
+	<br>
+	<br>
+	<br>
+	<br>
+	<div><text>Vanliga bokstäver i svenska språket:</text></div>
+	<div><text>E 10,1%</text></div>
+	<div><text>A 9,4%</text></div>
+	<div><text>N 8,5%</text></div>
+	<div><text>R 8,4%</text></div>
+	<div><text>T 7,7%</text></div>
+	<div><text>S 6,6%</text></div>
+	<div><text>Frekvens av markerad bokstav: </text><text id="active-letter-frequency"></text></div>	
 
 </body>
 <script src="jquery-3.3.1.min.js"></script>
@@ -45,15 +56,13 @@
 	letters = clearTextPhrase().match(/.{1,1}/g);
 	fillChiffer(map, letters);
 	
-	window.onload = function() {
-		
-	};
+	window.onload = function() {};
 
 	$(document).ready(function(){
 		$(".input").keyup(function() {
 			var currentId = $(this).attr('id');
 			var currentValue = $(this).val();
-			map=replace(map, letters[currentId], currentValue);
+			map=replace(map, letters[currentId], currentValue);//replace the map with a new one, replaceing correct letter with new input value. 
 			setLetters(map, letters);
 		});
 		
@@ -61,6 +70,9 @@
 			var currentId = $(this).attr('id');
 			var correctvalue = letters[currentId];
 			addFocusclass(letters, correctvalue);
+			
+			var currfreq = cfreqletter(letters, currentId); // retreived from cleartext, can be established from chipher if all letters unique. 
+			$("#active-letter-frequency").text(""+currfreq.toFixed(1)+" %");
 		});
 		
 		$(".input").blur(function() {
@@ -93,7 +105,7 @@
 	
 	function setLetters(lettermapping, letters){
 		for(var i = 0; i < letters.length; i++) {
-			if(letters[i]!==" "){//refering to nonexistion element craches script
+			if(letters[i]!==" "){//refering to nonexisting element craches script
 				var input= document.getElementById(i);
 				input.value=lettermapping[letters[i]];
 			}
@@ -153,6 +165,20 @@
 		var newlettermapping = Object.create(lettermapping);
 		newlettermapping[correctletter] = mappedletter;
 		return newlettermapping;
+	}
+	
+	function cfreqletter(letters, currentId) {
+		var freq=0;
+		var totalnumberofletters=0
+		for(var i=0; i<letters.length; i++) {
+			if(letters[i].match(/^[A-ZÅÄÖ]{1}$/)) { 
+				if(letters[i] == letters[currentId]) {
+					freq++;
+				}
+				totalnumberofletters++;
+			}
+		}
+		return (100*freq)/totalnumberofletters;
 	}
 	
 </script>
