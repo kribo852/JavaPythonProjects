@@ -1,31 +1,57 @@
 <!DOCTYPE html>
  <meta charset="UTF-8"> 
-<html lang="swedish">
+<html lang="sv">
 	<style type="text/css">
-
-	.input {
+	
+	p {
+		font-size: 20px;
+		font-style: bold;
+		font-family: monospace;
+		margin-right: 4em; /*only active for p element text-div is centering text */
+		margin-left: 4em;
+		letter-spacing: -0.01em;
+	}
+	
+	text {
+		font-size: 20px;
+		font-style: bold;
+		font-family: monospace;
+		letter-spacing: -0.01em;
+		position
+	}
+	
+	input {
+		font-size: 20px;
+		font-style: bolder;
+		font-family: courier;
 		width: 20px;
-		font-size: 20px;
-		font-style: bolder;
-		font-family: Monospace;
+		background-color:lightgrey;
 	}
 	
-	.input-focus {
-		background-color:lightgreen;
-	}
-	
-	.p{
-		font-size: 20px;
-		font-style: bolder;
-		font-family: Monospace;
+	.div-centered { /*för presentation av bokstavsfrekvenser*/
+		text-align: center;
 	}
 	
 	body {
 		background-image: url("sav.png");
 		background-size: 100%;
 	}
+		
+	h1 {
+		text-align: center;
+		font-family: monospace;
+	}
 	
-	.div-word {
+	.input-focus {
+		background-color:slateblue;
+	}
+	
+	input.input-focus:focus { 
+		background-color: lavender;
+		outline: none;
+	}
+	
+	.div-word {/*lägg "ord-block" på rad men bryt vid nyrad. Sätt avstånd mellan ord*/
 		display: inline-block;
 		margin-right: 13px;
 		margin-left: 12px;
@@ -33,22 +59,19 @@
 		
 	</style>
 <title>CHIFFER</title>
+<head>
+	<h1>CHIFFER!</h1>
+</head>
 <body>
-	<br><p class="p">CHIFFER! Skriv in bokstäver i rutorna för att lösa chiffret. Chiffret kan innehålla felstavningar, specialtecken och engelska ord.</p><br>
+	<br><p class="p"> Skriv in bokstäver i rutorna för att lösa chiffret. Chiffret kan innehålla felstavningar, specialtecken och engelska ord.</p><br>
 	<div id="main-div"></div>
 	<br>
 	<br>
 	<br>
 	<br>
-	<div><text>Vanliga bokstäver i svenska språket:</text></div>
-	<div><text>E 10,1%</text></div>
-	<div><text>A 9,4%</text></div>
-	<div><text>N 8,5%</text></div>
-	<div><text>R 8,4%</text></div>
-	<div><text>T 7,7%</text></div>
-	<div><text>S 6,6%</text></div>
-	<div><text>Frekvens av markerad bokstav: </text><text id="active-letter-frequency"></text></div>	
-
+	<div class="div-centered"><text>Vanliga bokstäver i svenska språket:</text></div>
+	<div class="div-centered"><text>E:10,1%  A:9,4%  N:8,5%  R:8,4%  T:7,7%  S:6,6%</text></div>
+	<div class="div-centered"><text>Frekvens för markerad bokstav: </text><text id="active-letter-frequency"></text></div>	
 </body>
 <script src="jquery-3.3.1.min.js"></script>
 <script>
@@ -71,6 +94,7 @@
 			var correctvalue = letters[currentId];
 			addFocusclass(letters, correctvalue);
 			
+			var input = document.getElementById(currentId);			
 			var currfreq = cfreqletter(letters, currentId); // retreived from cleartext, can be established from chipher if all letters unique. 
 			$("#active-letter-frequency").text(""+currfreq.toFixed(1)+" %");
 		});
@@ -79,6 +103,7 @@
 			var currentId = $(this).attr('id');
 			var correctvalue = letters[currentId];
 			removeFocusclass(letters, correctvalue);
+			var input = document.getElementById(currentId);
 		});
 		
 	});
@@ -152,9 +177,9 @@
 			return 'KEEP IT LOUD ÄR AWESOME!! MATTECENTRUM GER ALLA SOM FRÅGAR EN TABLETTASK. ANALYS AV FREKVENSER FÖR BOKSTÄVER, BOKSTAVSFÖLJDER OCH ORD ÄR ANVÄNDBARA FÖR ATT LÖSA ENKLA CHIFFER. JU LÄNGRE EN CHIFFER-TEXT ÄR DESTO MER ANVÄNDBAR INFORMATION FÖR ATT LÖSA CHIFFRET INNEHÅLLER DEN.';
 		}
 		if(sentence<0.66){
-			return 'MATTECENTRUM ÄR EN RIKSTÄCKANDE DEMOKRATISK, POLITISKT OCH RELIGÖST OBUNDEN ORGANISATION SOM ANORDNAR INDIVIDUELL LÄXHJÄLP. BLI MEDLEM OCH FÅ MÖJLIGHET ATT PÅVERKA MATTECENTRUMS UTVECKLINGSARBETE. VARJE ÅR HAR MATTECENTRUM ÅRSMÖTE TILL VILKET ALLA MEDLEMMAR ÄR INBJUDNA. ALLA SOM VILL KAN BLI MEDLEMMAR, MER INFORMATION FINNS PÅ VÅR HEMSIDA.';
+			return 'MATTECENTRUM ÄR EN RIKSTÄCKANDE DEMOKRATISK, POLITISKT OCH RELIGIÖST OBUNDEN FÖRENING SOM ANORDNAR INDIVIDUELL LÄXHJÄLP. BLI MEDLEM OCH FÅ MÖJLIGHET ATT PÅVERKA MATTECENTRUMS UTVECKLINGSARBETE. VARJE ÅR HAR MATTECENTRUM ÅRSMÖTE TILL VILKET ALLA MEDLEMMAR ÄR INBJUDNA. ALLA SOM VILL KAN BLI MEDLEMMAR, FÖR MER INFORMATION OM MEDLEMSKAP, FRÅGA EN AV VÅRA VOLONTÄRER ELLER GÅ IN PÅ VÅR HEMSIDA.';
 		}
-		return 'UTÖVER FREKVENSER FÖR BOKSTÄVER, BIGRAM OCH TRIGRAM, ALLTSÅ BOKSTAVSFÖLJDER MED TVÅ ELLER TRE BOKSTÄVER, KAN KONTEXT ANVÄNDAS FÖR ATT LÖSA KRYPTON. TILL EXEMPEL ÄR ORDET MATTECENTRUM VANLIGT FÖREKOMMANDE I DE HÄR KRYPTONA. GENOM ATT GISSA ATT ETT ORD ÄR MATTECENTRUM FÅS EN STOR MÄNGD INFORMATION OM VAD DE ANDRA ORDEN KAN VARA.'  
+		return 'UTÖVER FREKVENSER FÖR BOKSTÄVER, BIGRAM OCH TRIGRAM, ALLTSÅ BOKSTAVSFÖLJDER MED TVÅ ELLER TRE BOKSTÄVER, KAN KONTEXT ANVÄNDAS FÖR ATT LÖSA KRYPTON. TILL EXEMPEL ÄR ORDET MATTECENTRUM VANLIGT FÖREKOMMANDE I DE HÄR KRYPTONA. GENOM ATT GISSA ATT ETT ORD ÄR MATTECENTRUM UR DEN HÄR TEXTEN FÅS EN STOR MÄNGD INFORMATION OM VAD DE ÖVRIGA ORDEN KAN VARA.'; 
 	}
 	
 	function isDecrypted(string1, string2){
